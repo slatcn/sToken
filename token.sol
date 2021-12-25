@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 interface IERC20 {
 
@@ -14,6 +14,7 @@ interface IERC20 {
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Burn(address indexed spender, uint256 value);
     event Mint(address indexed receiver, uint256 value);
 }
 
@@ -35,6 +36,8 @@ contract Token is IERC20 {
         admin = msg.sender;
         totalSupply_ = total;
         balances[msg.sender] = totalSupply_;
+
+        emit Mint(admin, totalSupply_);
     }
 
     function totalSupply() public override view returns (uint256) {
@@ -43,6 +46,10 @@ contract Token is IERC20 {
 
     function balanceOf(address tokenOwner) public override view returns (uint256) {
         return balances[tokenOwner];
+    }
+
+    function getOwner() public view returns (address) {
+        return admin;
     }
 
     function transfer(address receiver, uint256 numTokens) public override returns (bool) {
@@ -79,6 +86,20 @@ contract Token is IERC20 {
         balances[receiver] = balances[receiver].add(numTokens);
         totalSupply_ = totalSupply_.add(numTokens);
         emit Mint(receiver, numTokens);
+        return true;
+    }
+
+    function burn(address spender, uint256 numTokens) public returns (bool) {
+        require(msg.sender == admin);
+        balances[spender] = balances[spender].sub(numTokens);
+        totalSupply_ = totalSupply_.sub(numTokens);
+        emit Burn(spender, numTokens);
+        return true;
+    }
+
+    function setOwner(address owner) public returns (bool){
+        require(msg.sender == admin);
+        admin = owner;
         return true;
     }
 }
