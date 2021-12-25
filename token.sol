@@ -14,6 +14,7 @@ interface IERC20 {
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Mint(address indexed receiver, uint256 value);
 }
 
 
@@ -28,8 +29,10 @@ contract Token is IERC20 {
     mapping(address => mapping (address => uint256)) allowed;
 
     uint256 totalSupply_;
+    address admin;
 
     constructor(uint256 total) public {
+        admin = msg.sender;
         totalSupply_ = total;
         balances[msg.sender] = totalSupply_;
     }
@@ -50,7 +53,7 @@ contract Token is IERC20 {
         return true;
     }
 
-    function approve(address delegate, uint256 numTokens) public override returns (bool) {
+    function approve(address delegate, uint256 numTokens) external override returns (bool) {
         allowed[msg.sender][delegate] = numTokens;
         emit Approval(msg.sender, delegate, numTokens);
         return true;
@@ -68,6 +71,14 @@ contract Token is IERC20 {
         allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
         balances[buyer] = balances[buyer].add(numTokens);
         emit Transfer(owner, buyer, numTokens);
+        return true;
+    }
+
+    function mint(address receiver, uint256 numTokens) public returns (bool) {
+        require(msg.sender == admin);
+        balances[receiver] = balances[receiver].add(numTokens);
+        totalSupply_ = totalSupply_.add(numTokens);
+        emit Mint(receiver, numTokens);
         return true;
     }
 }
