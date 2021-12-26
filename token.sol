@@ -31,14 +31,14 @@ contract Token is IERC20 {
     mapping(address => mapping (address => uint256)) allowed;
 
     uint256 totalSupply_;
-    address _owner;
+    address owner_;
 
     constructor(uint256 total) public {
-        _owner = msg.sender;
+        owner_ = msg.sender;
         totalSupply_ = total;
         balances[msg.sender] = totalSupply_;
 
-        emit Mint(_owner, totalSupply_);
+        emit Mint(owner_, totalSupply_);
     }
 
     function totalSupply() public override view returns (uint256) {
@@ -50,7 +50,7 @@ contract Token is IERC20 {
     }
 
     function getOwner() public view returns (address) {
-        return _owner;
+        return owner_;
     }
 
     function transfer(address receiver, uint256 numTokens) public override returns (bool) {
@@ -83,7 +83,7 @@ contract Token is IERC20 {
     }
 
     function mint(address receiver, uint256 numTokens) public returns (bool) {
-        require(msg.sender == _owner);
+        require(msg.sender == owner_);
         balances[receiver] = balances[receiver].add(numTokens);
         totalSupply_ = totalSupply_.add(numTokens);
         emit Mint(receiver, numTokens);
@@ -91,7 +91,7 @@ contract Token is IERC20 {
     }
 
     function burn(address spender, uint256 numTokens) public returns (bool) {
-        require(msg.sender == _owner);
+        require(msg.sender == owner_);
         balances[spender] = balances[spender].sub(numTokens);
         totalSupply_ = totalSupply_.sub(numTokens);
         emit Burn(spender, numTokens);
@@ -99,9 +99,9 @@ contract Token is IERC20 {
     }
 
     function setOwner(address owner) public returns (bool){
-        require(msg.sender == _owner);
-        _owner = owner;
-        emit SetOwner(_owner);
+        require(msg.sender == owner_);
+        owner_ = owner;
+        emit SetOwner(owner_);
         return true;
     }
 }
