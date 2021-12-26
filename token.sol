@@ -101,7 +101,7 @@ contract Token is IERC20 {
     function setOwner(address owner) public returns (bool){
         require(msg.sender == _owner);
         _owner = owner;
-        emit SetOwner(_owner)
+        emit SetOwner(_owner);
         return true;
     }
 }
