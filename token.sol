@@ -16,6 +16,7 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Burn(address indexed spender, uint256 value);
     event Mint(address indexed receiver, uint256 value);
+    event SetOwner(address indexed owner);
 }
 
 
@@ -30,14 +31,14 @@ contract Token is IERC20 {
     mapping(address => mapping (address => uint256)) allowed;
 
     uint256 totalSupply_;
-    address admin;
+    address _owner;
 
     constructor(uint256 total) public {
-        admin = msg.sender;
+        _owner = msg.sender;
         totalSupply_ = total;
         balances[msg.sender] = totalSupply_;
 
-        emit Mint(admin, totalSupply_);
+        emit Mint(_owner, totalSupply_);
     }
 
     function totalSupply() public override view returns (uint256) {
@@ -49,7 +50,7 @@ contract Token is IERC20 {
     }
 
     function getOwner() public view returns (address) {
-        return admin;
+        return _owner;
     }
 
     function transfer(address receiver, uint256 numTokens) public override returns (bool) {
@@ -82,7 +83,7 @@ contract Token is IERC20 {
     }
 
     function mint(address receiver, uint256 numTokens) public returns (bool) {
-        require(msg.sender == admin);
+        require(msg.sender == _owner);
         balances[receiver] = balances[receiver].add(numTokens);
         totalSupply_ = totalSupply_.add(numTokens);
         emit Mint(receiver, numTokens);
@@ -90,7 +91,7 @@ contract Token is IERC20 {
     }
 
     function burn(address spender, uint256 numTokens) public returns (bool) {
-        require(msg.sender == admin);
+        require(msg.sender == _owner);
         balances[spender] = balances[spender].sub(numTokens);
         totalSupply_ = totalSupply_.sub(numTokens);
         emit Burn(spender, numTokens);
@@ -98,8 +99,9 @@ contract Token is IERC20 {
     }
 
     function setOwner(address owner) public returns (bool){
-        require(msg.sender == admin);
-        admin = owner;
+        require(msg.sender == _owner);
+        _owner = owner;
+        emit SetOwner(_owner)
         return true;
     }
 }
